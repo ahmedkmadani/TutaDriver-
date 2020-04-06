@@ -220,7 +220,7 @@ class SignupActivity : AppCompatActivity() {
             Snackbar.LENGTH_LONG
         )
             .show()
-        startActivity(Intent(this, MapsActivity::class.java))
+        startActivity(Intent(this, VechicalInformatinActivity::class.java))
         finish()
     }
 

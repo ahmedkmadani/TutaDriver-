@@ -18,12 +18,6 @@ import org.json.JSONObject
 
 class SigninActivity: AppCompatActivity() {
 
-//    private var callbackManager: CallbackManager? = null
-//    val EMAIL = "email"
-//    val PUBLIC_PROFILE = "public_profile"
-//
-//    val USER_PERMISSION = "user_friends"
-
     internal lateinit var viewDialog: ViewDialog
     internal lateinit var user: User
 
@@ -34,51 +28,11 @@ class SigninActivity: AppCompatActivity() {
 
         if (SharedPrefManager.getInstance(this).isLoggedIn) {
             finish()
-            startActivity(Intent(this, MapsActivity::class.java))
+            startActivity(Intent(this, VechicalInformatinActivity::class.java))
             return
         }
 
         viewDialog = ViewDialog(this)
-
-//        facebookLoginButton.setOnClickListener {
-//            callbackManager = CallbackManager.Factory.create()
-//            LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList(EMAIL, PUBLIC_PROFILE, USER_PERMISSION))
-//            LoginManager.getInstance().registerCallback(callbackManager,
-//                object : FacebookCallback<LoginResult> {
-//                    override fun onSuccess(loginResult: LoginResult) {
-//                        val request = GraphRequest.newMeRequest(
-//                            loginResult.accessToken
-//                        ) { jsonObject, _ ->
-//                            Log.d("Facebook JsonObject", jsonObject.toString())
-//
-//                            val email = jsonObject?.get("email")?.toString() ?: ""
-//                            val name = jsonObject.get("name").toString()
-//                            val id = jsonObject.get("id").toString()
-//                            val profileObjectImage = jsonObject?.getJSONObject("picture")?.getJSONObject("data")?.get("url").toString()
-//
-//                            Toast.makeText(this@SigninActivity, "Welcome ${name} to Tuta App", Toast.LENGTH_LONG).show()
-//                            Log.d("Facebook Name", name)
-//                        }
-//                        val parameters = Bundle()
-//                        parameters.putString("fields", "id,name,email,picture.type(large)")
-//                        request.parameters = parameters
-//                        request.executeAsync()
-//                        Log.d("SigninActivity", "Facebook token: " + loginResult.accessToken.token)
-//                        onSiginSuccess()
-//                    }
-//
-//                    override fun onCancel() {
-//                        Log.d("SigninActivity", "Facebook onCancel.")
-//
-//                    }
-//
-//
-//                    override fun onError(exception: FacebookException) {
-//                        Log.d("SigninActivity", "Facebook onError.")
-//                    }
-//                })
-//        }
-
 
         btn_login.setOnClickListener {
             Sigin()
