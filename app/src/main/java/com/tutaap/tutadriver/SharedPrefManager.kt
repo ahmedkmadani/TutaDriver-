@@ -56,6 +56,28 @@ class SharedPrefManager private constructor(context: Context) {
 
 
 
+    fun TruckId(truckId: String) {
+        val sharedPreferences = ctx?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences?.edit()
+        editor?.putString(TRUCK_ID, truckId)
+
+        editor?.apply()
+
+    }
+
+
+    val TRUCKID: String?
+        get() {
+            val sharedPreferences = ctx?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+            return sharedPreferences!!.getString(TRUCK_ID, null)
+
+        }
+
+    init {
+        ctx = context
+    }
+
+
     fun logout() {
         val sharedPreferences = ctx?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         val editor = sharedPreferences?.edit()
@@ -77,6 +99,8 @@ class SharedPrefManager private constructor(context: Context) {
         private val KEY_UPDATEDAT = "keyupdate"
         private val KEY_IS_DRIVER = "keyisdriver"
         private val KEY_VERIFIEDAT = "keyverfied"
+        private val TRUCK_ID = "truckid"
+
 
 
         private var mInstance: SharedPrefManager? = null

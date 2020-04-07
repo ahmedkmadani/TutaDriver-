@@ -28,7 +28,7 @@ class SigninActivity: AppCompatActivity() {
 
         if (SharedPrefManager.getInstance(this).isLoggedIn) {
             finish()
-            startActivity(Intent(this, VechicalInformatinActivity::class.java))
+            startActivity(Intent(this, MapsActivity::class.java))
             return
         }
 
@@ -131,6 +131,7 @@ class SigninActivity: AppCompatActivity() {
                     UserArray.getString("email_verified_at"),
                     UserArray.getInt("is_driver"),
                     token
+
                 )
 
                 SharedPrefManager.getInstance(applicationContext).userLogin(user)

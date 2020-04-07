@@ -31,5 +31,10 @@
     <string name="login">Login</string>
     <string name="no_account_yet_create_one">No account yet? Create one</string>
     <string name="emailr">Email</string>
+    <string name="insert_vechical">Insert My info</string>
+    <string name="select_truck">Select Vehicle</string>
+    <string name="insert_driver">Deriving Licence</string>
+    <string name="insert_phone_number">Phone Number</string>
+    <string name="insert_id">ID Number</string>
 
 </resources>
