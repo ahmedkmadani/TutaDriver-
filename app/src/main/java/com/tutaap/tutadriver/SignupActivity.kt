@@ -77,15 +77,7 @@ class SignupActivity : AppCompatActivity() {
 
                     val JsonRes = response.getJSONObject("data")
                     val Token = JsonRes.getString("token")
-
-                    if(Token != null ){
-
-                        getUser(Token)
-
-                    } else {
-
-                        onSiginFailed()
-                    }
+                    getUser(Token)
 
 
                 }catch (e:Exception){
@@ -112,6 +104,7 @@ class SignupActivity : AppCompatActivity() {
 
                 val JsonReq = response.getJSONObject("data")
                 val UserArray = JsonReq.getJSONObject("user")
+
 
                 Log.d("user" , "$JsonReq")
 
@@ -226,11 +219,11 @@ class SignupActivity : AppCompatActivity() {
 
     private fun onSiginFailed() {
         viewDialog.hideDialog()
-        Snackbar.make(findViewById<View>(android.R.id.content),
+        Snackbar.make(findViewById(android.R.id.content),
             "Sign up Failed",
             Snackbar.LENGTH_LONG
         )
-            .setAction("Try Again") { v -> Signup() }.show()
+            .setAction("Try Again") { Signup() }.show()
     }
 
 }

@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.android.volley.AuthFailureError
@@ -26,10 +27,21 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.messaging.RemoteMessage
+import com.pusher.client.Pusher
+import com.pusher.client.PusherOptions
+import com.pusher.client.channel.ChannelEventListener
+import com.pusher.client.connection.ConnectionState
+import com.pusher.client.connection.ConnectionStateChange
+import com.pusher.pushnotifications.PushNotificationReceivedListener
+import com.pusher.pushnotifications.PushNotifications
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.HashMap
+import javax.sql.ConnectionEvent
+import javax.sql.ConnectionEventListener
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -37,12 +49,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     val PERMISSION_ID = 42
 
     lateinit var mFusedLocationClient: FusedLocationProviderClient
-    lateinit var TRUCK_ID: String
+    private var TRUCK_ID: Int = 0
 
     lateinit var token: String
     internal lateinit var user: User
 
     internal lateinit var viewDialog: ViewDialog
+    private var DriverId: Int = 0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,11 +69,69 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mapFragment.getMapAsync(this)
 
         val user = SharedPrefManager.getInstance(this).user
+        DriverId = user.Id!!.toInt()
+        Log.d("Driver Id", DriverId.toString())
+
         viewDialog = ViewDialog(this)
 
         token = user.token.toString()
-        TRUCK_ID = SharedPrefManager.getInstance(this).TRUCKID.toString()
+        TRUCK_ID = SharedPrefManager.getInstance(this).TRUCKID!!
 
+        Log.d("TRUCK ID", TRUCK_ID.toString())
+
+        Log.d("Token", token)
+
+        PushNotifications.start(this, "7e59a311-5158-4a17-b767-0fdd58610388")
+        PushNotifications.addDeviceInterest("App.User.70")
+
+        val interests = PushNotifications.getDeviceInterests()
+        Log.d("intset", interests.toString())
+
+//        val options = PusherOptions()
+//        options.setCluster("eu")
+//        val pusher = Pusher("0d7a677e7fd7526b0c97", options)
+//        options.isEncrypted
+//
+//        pusher.connect(object :
+//            com.pusher.client.connection.ConnectionEventListener {
+//            override fun onConnectionStateChange(p0: ConnectionStateChange?) {
+//                Log.d("msg One","" + p0!!.currentState)
+//            }
+//
+//            override fun onError(p0: String?, p1: String?, p2: java.lang.Exception?) {
+//                Log.d("msg Two", p0)
+//            }
+//
+//        }, ConnectionState.ALL)
+
+
+//        val channel = pusher.subscribePrivate("App.User.$DriverId")
+//        val channel = pusher.getPrivateChannel("private-App.User.$DriverId")
+
+//        var channel = pusher.subscribe("private-App.User.$DriverId", object: ChannelEventListener {
+//            override fun onEvent(p0: String?, p1: String?, p2: String?) {
+//                TODO("Not yet implemented")
+//            }
+//
+//            override fun onSubscriptionSucceeded(channelName: String) {
+//                println("Subscribed!")
+//            }
+//        })
+
+//        val event = "Illuminate\\Notifications\\Events\\BroadcastNotificationCreated"
+//        channel.bind(event.toString()) { channel, eventName, data ->
+//            val jsonObject = JSONObject(data)
+//            println(data)
+//
+//            Log.d("connect to channcel", "connecting")
+//            Log.d("msg Three ", data.toString())
+//            Log.d("msg four", eventName.toString())
+//            Log.d("msg five", channel.toString())
+//
+//            runOnUiThread {
+//                Log.d("connect to channcel", "try")
+//            }
+//        }
     }
 
 
@@ -78,10 +150,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
 
-
-
-    private fun InsertInfo(token: String, lat: String, lon: String, TRUCK_ID: String) {
-
+    private fun InsertInfo(token: String, lat: String, lon: String, TRUCK_ID: Int) {
+        Log.d("turck id in ", TRUCK_ID.toString())
         val stringRequest: StringRequest = object : StringRequest( Method.POST, URLs.URL_STORE_TRUCK_LOCATION,
             Response.Listener { response ->
                 try {
@@ -97,11 +167,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             },
             Response.ErrorListener { error ->
                 onFailed(error)
-
+                    Log.d("debug", error.toString())
             }) {
             override fun getParams(): Map<String, String> {
                 val params: MutableMap<String, String> = HashMap()
-                params["vehicle_id"] = TRUCK_ID
+                params["vehicle_id"] = TRUCK_ID.toString()
                 params["latitude"] =  lat
                 params["longitude"] = lon
 
@@ -135,9 +205,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     if (location == null) {
                         requestNewLocationData()
                     } else {
-//                        Log.d("Location", location.latitude.toString() + "" + location.longitude.toString())
-//                        InsertInfo(token, location.latitude.toString(), location.longitude.toString(), TRUCK_ID)
-                        requestNewLocationData()
+                     requestNewLocationData()
                     }
                 }
             } else {
@@ -233,4 +301,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private fun onSuccess() {
 
     }
+
+    override fun onResume() {
+        super.onResume()
+        PushNotifications.setOnMessageReceivedListenerForVisibleActivity(this, object :
+            PushNotificationReceivedListener {
+            override fun onMessageReceived(remoteMessage: RemoteMessage) {
+
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "Message received: " +
+                            "Title: \"${remoteMessage.notification?.title}\"" +
+                            "Body \"${remoteMessage.notification?.body}\"",
+                    Snackbar.LENGTH_LONG
+                )
+                    .show()
+
+            }
+        })
+
+    }
+
 }
+
+

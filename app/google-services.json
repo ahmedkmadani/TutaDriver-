@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "767519034473",
+    "firebase_url": "https://tuta-driver.firebaseio.com",
+    "project_id": "tuta-driver",
+    "storage_bucket": "tuta-driver.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:767519034473:android:2f13f7bf72658e51da26f8",
+        "android_client_info": {
+          "package_name": "com.tutaap.tutadriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "767519034473-at1u0a3t868vagtdah8uti7mr8t2fm6j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpGS43IwVpxstuCArascMikBKQ-G_RD3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "767519034473-at1u0a3t868vagtdah8uti7mr8t2fm6j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

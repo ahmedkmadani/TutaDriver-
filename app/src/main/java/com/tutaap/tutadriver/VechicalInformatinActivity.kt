@@ -36,7 +36,7 @@ class VechicalInformatinActivity : AppCompatActivity() {
     private var IdTruck: Int = 0
 
     private var DriverId: Int = 0
-    lateinit var TRUCK_ID: String
+    private var TRUCK_ID: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,8 +83,7 @@ class VechicalInformatinActivity : AppCompatActivity() {
                     val JsonReq = jsonObject.getJSONObject("data")
                     val TrucksObject = JsonReq.getJSONObject("vehicle")
 
-                    TRUCK_ID = TrucksObject.getString("id")
-
+                    TRUCK_ID = TrucksObject.getInt("id")
                     SharedPrefManager.getInstance(applicationContext).TruckId(TRUCK_ID)
                     onSuccess()
 
@@ -130,7 +129,6 @@ class VechicalInformatinActivity : AppCompatActivity() {
 
                 val JsonReq = response.getJSONObject("data")
                 val TrucksArray = JsonReq.getJSONArray("vehicle_types")
-                Log.d("vehicle_types" , "$TrucksArray")
 
                 for(i in 0 until TrucksArray.length()) {
 
@@ -200,8 +198,6 @@ class VechicalInformatinActivity : AppCompatActivity() {
                 return headers
             }
         }
-
-
 
         VolleySingleton.getInstance(this).addToRequestQueue(jRequest)
 

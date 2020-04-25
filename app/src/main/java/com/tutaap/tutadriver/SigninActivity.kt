@@ -55,7 +55,7 @@ class SigninActivity: AppCompatActivity() {
 
         val Email = input_email!!.text.toString()
         val Password = input_password!!.text.toString()
-        val isDriver = 0
+        val isDriver = 1
 
         val jsonObject = JSONObject()
 
@@ -78,18 +78,7 @@ class SigninActivity: AppCompatActivity() {
 
                     val JsonRes = response.getJSONObject("data")
                     val Token = JsonRes.getString("token")
-
-                    Log.d("Token", "$Token")
-                    Log.d("res", "$JsonRes")
-
-                    if(Token != null ){
-
-                        getUser(Token)
-
-                    } else {
-
-                        onSiginFailed()
-                    }
+                    getUser(Token)
 
 
                 }catch (e:Exception){
@@ -116,6 +105,8 @@ class SigninActivity: AppCompatActivity() {
 
                 val JsonReq = response.getJSONObject("data")
                 val UserArray = JsonReq.getJSONObject("user")
+                val vehical = UserArray.getJSONObject("vehicle")
+                val TRUCK_ID = vehical.getInt("id")
 
                 Log.d("user" , "$JsonReq")
 
@@ -135,6 +126,8 @@ class SigninActivity: AppCompatActivity() {
                 )
 
                 SharedPrefManager.getInstance(applicationContext).userLogin(user)
+                SharedPrefManager.getInstance(applicationContext).TruckId(TRUCK_ID)
+
                 onSiginSuccess()
             },
             Response.ErrorListener {
@@ -207,11 +200,11 @@ class SigninActivity: AppCompatActivity() {
 
     private fun onSiginFailed() {
         viewDialog.hideDialog()
-        Snackbar.make(findViewById<View>(android.R.id.content),
+        Snackbar.make(findViewById(android.R.id.content),
             "Sign in Failed",
             Snackbar.LENGTH_LONG
         )
-            .setAction("Try Again") { v -> Sigin() }.show()
+            .setAction("Try Again") { Sigin() }.show()
     }
 
 }

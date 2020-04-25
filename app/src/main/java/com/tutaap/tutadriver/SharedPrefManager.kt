@@ -18,15 +18,15 @@ class SharedPrefManager private constructor(context: Context) {
             val sharedPreferences = ctx?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             return User(
                 sharedPreferences!!.getString(KEY_ID, null),
-                sharedPreferences!!.getString(KEY_FirstNAME, null),
-                sharedPreferences!!.getString(KEY_LASTNAME, null),
-                sharedPreferences!!.getString(KEY_EMAIL, null),
-                sharedPreferences!!.getString(KEY_DELETEAT, null),
-                sharedPreferences!!.getString(KEY_CREATEDAT, null),
-                sharedPreferences!!.getString(KEY_UPDATEDAT, null),
-                sharedPreferences!!.getString(KEY_VERIFIEDAT, null),
-                sharedPreferences!!.getInt(KEY_IS_DRIVER, -1),
-                sharedPreferences!!.getString(KEY_TOKEN, null)
+                sharedPreferences.getString(KEY_FirstNAME, null),
+                sharedPreferences.getString(KEY_LASTNAME, null),
+                sharedPreferences.getString(KEY_EMAIL, null),
+                sharedPreferences.getString(KEY_DELETEAT, null),
+                sharedPreferences.getString(KEY_CREATEDAT, null),
+                sharedPreferences.getString(KEY_UPDATEDAT, null),
+                sharedPreferences.getString(KEY_VERIFIEDAT, null),
+                sharedPreferences.getInt(KEY_IS_DRIVER, -1),
+                sharedPreferences.getString(KEY_TOKEN, null)
 
             )
         }
@@ -51,25 +51,26 @@ class SharedPrefManager private constructor(context: Context) {
         editor?.putString(KEY_UPDATEDAT, user.UpdatedAt)
         editor?.putString(KEY_VERIFIEDAT, user.EmailVerifiedAt)
 
+
         editor?.apply()
     }
 
 
 
-    fun TruckId(truckId: String) {
+    fun TruckId(truckId: Int) {
         val sharedPreferences = ctx?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         val editor = sharedPreferences?.edit()
-        editor?.putString(TRUCK_ID, truckId)
+        editor?.putInt(TRUCK_ID, truckId)
 
         editor?.apply()
 
     }
 
 
-    val TRUCKID: String?
+    val TRUCKID: Int?
         get() {
             val sharedPreferences = ctx?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            return sharedPreferences!!.getString(TRUCK_ID, null)
+            return sharedPreferences!!.getInt(TRUCK_ID, -1)
 
         }
 
@@ -99,7 +100,8 @@ class SharedPrefManager private constructor(context: Context) {
         private val KEY_UPDATEDAT = "keyupdate"
         private val KEY_IS_DRIVER = "keyisdriver"
         private val KEY_VERIFIEDAT = "keyverfied"
-        private val TRUCK_ID = "truckid"
+        private const val TRUCK_ID = "truckid"
+
 
 
 

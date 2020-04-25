@@ -20,7 +20,7 @@
 
     <string name="facebook_app_id">382846332356344</string>
     <string name="fb_login_protocol_scheme">fb382846332356344</string>
-    <string name="sigin_up">Sigin Up</string>
+    <string name="sigin_up">Sign Up</string>
     <string name="already_have_account_login">Already have account? Login</string>
     <string name="password">Password</string>
     <string name="first_name">First Name</string>

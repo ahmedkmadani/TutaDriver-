@@ -1,13 +1,13 @@
 package com.tutaap.tutadriver
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.Window
 import com.airbnb.lottie.LottieAnimationView
 
-class ViewDialog(internal var activity: Activity) {
+class ViewDialog(internal var activity: AppCompatActivity) {
 
     internal lateinit var mLottieAnimationView: LottieAnimationView
     internal var mAnimFile = "world-locations.json"

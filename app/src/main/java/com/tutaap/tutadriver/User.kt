@@ -11,4 +11,5 @@ class User(
     val EmailVerifiedAt: String?,
     val is_driver: Int,
     val token: String?
+
 )
