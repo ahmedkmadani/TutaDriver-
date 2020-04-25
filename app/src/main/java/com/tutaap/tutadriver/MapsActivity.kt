@@ -77,9 +77,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         token = user.token.toString()
         TRUCK_ID = SharedPrefManager.getInstance(this).TRUCKID!!
 
-        Log.d("TRUCK ID", TRUCK_ID.toString())
-
-        Log.d("Token", token)
 
         PushNotifications.start(this, "7e59a311-5158-4a17-b767-0fdd58610388")
         PushNotifications.addDeviceInterest("App.User.70")
@@ -151,14 +148,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
 
     private fun InsertInfo(token: String, lat: String, lon: String, TRUCK_ID: Int) {
-        Log.d("turck id in ", TRUCK_ID.toString())
         val stringRequest: StringRequest = object : StringRequest( Method.POST, URLs.URL_STORE_TRUCK_LOCATION,
             Response.Listener { response ->
                 try {
 
                     val jsonObject = JSONObject(response)
-                    Log.d("ressTORE", response)
-
                     onSuccess()
 
                 } catch (e: JSONException) {
