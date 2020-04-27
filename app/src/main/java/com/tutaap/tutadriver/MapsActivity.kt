@@ -43,6 +43,10 @@ import com.pusher.client.util.HttpAuthorizer
 import com.pusher.pushnotifications.PushNotificationReceivedListener
 import com.pusher.pushnotifications.PushNotifications
 import kotlinx.android.synthetic.main.bottom_sheet.*
+import kotlinx.android.synthetic.main.bottom_sheet.btn_cancel
+import kotlinx.android.synthetic.main.bottom_sheet.user_location_drop
+import kotlinx.android.synthetic.main.bottom_sheet.user_location_pickup
+import kotlinx.android.synthetic.main.bottom_sheet_start_trip.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -63,18 +67,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private var DriverId: Int = 0
 
     private lateinit var sheetBehaviorOne: BottomSheetBehavior<LinearLayout>
+    private lateinit var sheetBehaviorTwo: BottomSheetBehavior<LinearLayout>
+
     lateinit var addressText: String
     lateinit var TRIPID: String
 
-
+    lateinit var user_pickup_location: String
+    lateinit var user_drop_Location: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         sheetBehaviorOne = BottomSheetBehavior.from(bottom_sheet)
         sheetBehaviorOne.state = BottomSheetBehavior.STATE_HIDDEN
+
+        sheetBehaviorTwo = BottomSheetBehavior.from(bottom_sheet_start_trip)
+        sheetBehaviorTwo.state = BottomSheetBehavior.STATE_HIDDEN
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -82,7 +93,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         val user = SharedPrefManager.getInstance(this).user
         DriverId = user.Id!!.toInt()
-        Log.d("Driver Id", DriverId.toString())
 
         viewDialog = ViewDialog(this)
 
@@ -352,8 +362,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if (sheetBehaviorOne.state != BottomSheetBehavior.STATE_EXPANDED) {
             sheetBehaviorOne.state = BottomSheetBehavior.STATE_EXPANDED
 
-            val user_pickup_location = getAddress(pickup_location)
-            val user_drop_Location = getAddress(dropoffLocation)
+             user_pickup_location = getAddress(pickup_location)
+             user_drop_Location = getAddress(dropoffLocation)
 
             user_location_pickup.text = user_pickup_location
             user_location_drop.text = user_drop_Location
@@ -370,8 +380,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         } else {
             sheetBehaviorOne.state = BottomSheetBehavior.STATE_COLLAPSED
 
-            val user_pickup_location = getAddress(pickup_location)
-            val user_drop_Location = getAddress(dropoffLocation)
+             user_pickup_location = getAddress(pickup_location)
+             user_drop_Location = getAddress(dropoffLocation)
 
             user_location_pickup.text = user_pickup_location
             user_location_drop.text = user_drop_Location
@@ -390,11 +400,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
                     val jsonObject = JSONObject(response)
                     val data = jsonObject.getJSONObject("data")
-                    val client = data.getJSONArray("client")
+                    val trip = data.getJSONObject("trip")
+                    val client = trip.getJSONObject("client")
 
-                    Log.d("Response Start Trip ", client.toString())
+                    val firstName = client.getString("first_name")
+                    val lastName = client.getString("last_name")
 
-                    viewDialog.hideDialog()
+                    TripStart(firstName,lastName)
+
                 } catch (e: JSONException) {
                     e.printStackTrace()
                     viewDialog.hideDialog()
@@ -423,6 +436,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         stringRequest.retryPolicy =
             DefaultRetryPolicy(20 * 1000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
         requestQueue.add(stringRequest)
+
+    }
+
+    private fun TripStart(firstName: String, lastName: String) {
+
+            viewDialog.hideDialog()
+
+            sheetBehaviorOne.state = BottomSheetBehavior.STATE_HIDDEN
+            sheetBehaviorTwo.state = BottomSheetBehavior.STATE_EXPANDED
+
+            user_name.text = firstName + " " + lastName
+            user_location_pickup.text = user_pickup_location
+            user_location_drop.text = user_drop_Location
+
+
+            btn_cancel.setOnClickListener {
+
+            }
 
     }
 
