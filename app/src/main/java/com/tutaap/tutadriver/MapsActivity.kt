@@ -131,7 +131,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }, ConnectionState.ALL)
 
 
-        val channel = pusher.subscribePrivate("private-App.User.51", object:
+        val channel = pusher.subscribePrivate("private-App.User.$TRUCK_ID", object:
             PrivateChannelEventListener {
             override fun onEvent(channel: String?, eventName: String?, data: String?) {
                 Log.d("Channel", channel)
@@ -369,7 +369,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             user_location_drop.text = user_drop_Location
 
             btn_accept.setOnClickListener {
-                AcceptTrip(TRIPID,TRUCK_ID,token)
+                AcceptTrip(TRIPID,TRUCK_ID,token,user_pickup_location,user_drop_Location)
             }
 
             btn_cancel.setOnClickListener {
@@ -392,7 +392,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
 
-    private fun AcceptTrip(tripid: String, truckId: Int, token: String) {
+    private fun AcceptTrip(
+        tripid: String,
+        truckId: Int,
+        token: String,
+        userPickupLocation: String,
+        userDropLocation: String
+    ) {
         viewDialog.showDialog()
         val stringRequest: StringRequest = object : StringRequest( Method.GET, URLs.URL_START_TRIP + "${tripid.toInt()}/start/${truckId}",
             Response.Listener { response ->
@@ -406,7 +412,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     val firstName = client.getString("first_name")
                     val lastName = client.getString("last_name")
 
-                    TripStart(firstName,lastName)
+                    TripStart(firstName,lastName,userPickupLocation,userDropLocation)
 
                 } catch (e: JSONException) {
                     e.printStackTrace()
@@ -439,7 +445,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     }
 
-    private fun TripStart(firstName: String, lastName: String) {
+    private fun TripStart(firstName: String, lastName: String, userPickupLocation: String, userDropLocation: String) {
 
             viewDialog.hideDialog()
 
@@ -447,8 +453,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             sheetBehaviorTwo.state = BottomSheetBehavior.STATE_EXPANDED
 
             user_name.text = firstName + " " + lastName
-            user_location_pickup.text = user_pickup_location
-            user_location_drop.text = user_drop_Location
+            user_trip_pickup.text = userPickupLocation
+            user_trip_drop.text = userDropLocation
 
 
             btn_cancel.setOnClickListener {
