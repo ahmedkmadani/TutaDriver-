@@ -362,6 +362,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 AcceptTrip(TRIPID,TRUCK_ID,token)
             }
 
+            btn_cancel.setOnClickListener {
+                sheetBehaviorOne.state = BottomSheetBehavior.STATE_HIDDEN
+                map.clear()
+            }
+
         } else {
             sheetBehaviorOne.state = BottomSheetBehavior.STATE_COLLAPSED
 
@@ -376,20 +381,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup_location, 12f))
     }
 
+
     private fun AcceptTrip(tripid: String, truckId: Int, token: String) {
-        val stringRequest: StringRequest = object : StringRequest( Method.POST, URLs.URL_START_TRIP + "",
+        viewDialog.showDialog()
+        val stringRequest: StringRequest = object : StringRequest( Method.GET, URLs.URL_START_TRIP + "${tripid.toInt()}/start/${truckId}",
             Response.Listener { response ->
                 try {
 
-                    Log.d("Response Start Trip ", response.toString())
+                    val jsonObject = JSONObject(response)
+                    val data = jsonObject.getJSONObject("data")
+                    val client = data.getJSONArray("client")
 
+                    Log.d("Response Start Trip ", client.toString())
+
+                    viewDialog.hideDialog()
                 } catch (e: JSONException) {
                     e.printStackTrace()
+                    viewDialog.hideDialog()
                 }
             },
             Response.ErrorListener { error ->
                 onFailed(error)
                 Log.d("debug", error.toString())
+                viewDialog.hideDialog()
             }) {
             override fun getParams(): Map<String, String> {
                 val params: MutableMap<String, String> = HashMap()
