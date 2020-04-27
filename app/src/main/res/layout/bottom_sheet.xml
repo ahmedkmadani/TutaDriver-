@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="@dimen/activity_margin"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="56dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+
+        <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:tint="#E91E63"
+                app:srcCompat="@drawable/ic_circle_medium" />
+
+        <TextView
+                android:id="@+id/user_location_pickup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:text="Flat No 404, Skyline Apartments, Vizag - 500576"
+                android:textColor="#6F6C6C"
+                android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:background="#F3E6E6E6"
+            android:layout_gravity="center_vertical"
+            android:weightSum="3"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+
+        <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:tint="#009688"
+                app:srcCompat="@drawable/ic_circle_medium" />
+
+
+
+        <TextView
+                android:id="@+id/user_location_drop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:text="Flat No 404, Skyline Apartments, Vizag - 500576"
+                android:textColor="#6F6C6C"
+                android:textStyle="bold" />
+
+
+    </LinearLayout>
+
+
+    <Button
+            android:id="@+id/btn_accept"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="#000"
+            android:foreground="?attr/selectableItemBackground"
+            android:text="Accept TRIP"
+            android:textColor="#fff" />
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="#000"
+        android:foreground="?attr/selectableItemBackground"
+        android:text="CANCEL"
+        android:textColor="#fff" />
+
+
+</LinearLayout>
+
+
+

@@ -5,13 +5,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import android.view.View
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.android.volley.AuthFailureError
@@ -28,20 +30,23 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.RemoteMessage
 import com.pusher.client.Pusher
 import com.pusher.client.PusherOptions
-import com.pusher.client.channel.ChannelEventListener
+import com.pusher.client.channel.PrivateChannelEventListener
+import com.pusher.client.connection.ConnectionEventListener
 import com.pusher.client.connection.ConnectionState
 import com.pusher.client.connection.ConnectionStateChange
+import com.pusher.client.util.HttpAuthorizer
 import com.pusher.pushnotifications.PushNotificationReceivedListener
 import com.pusher.pushnotifications.PushNotifications
+import kotlinx.android.synthetic.main.bottom_sheet.*
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.HashMap
-import javax.sql.ConnectionEvent
-import javax.sql.ConnectionEventListener
+import java.io.IOException
+import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -57,12 +62,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     internal lateinit var viewDialog: ViewDialog
     private var DriverId: Int = 0
 
+    private lateinit var sheetBehaviorOne: BottomSheetBehavior<LinearLayout>
+    lateinit var addressText: String
+    lateinit var TRIPID: String
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        sheetBehaviorOne = BottomSheetBehavior.from(bottom_sheet)
+        sheetBehaviorOne.state = BottomSheetBehavior.STATE_HIDDEN
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -77,59 +89,100 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         token = user.token.toString()
         TRUCK_ID = SharedPrefManager.getInstance(this).TRUCKID!!
 
+        Log.d("token", token)
+        val options = PusherOptions()
 
-        PushNotifications.start(this, "7e59a311-5158-4a17-b767-0fdd58610388")
-        PushNotifications.addDeviceInterest("App.User.70")
+        options.setCluster("eu")
 
-        val interests = PushNotifications.getDeviceInterests()
-        Log.d("intset", interests.toString())
+        val headers: HashMap<String, String> = HashMap()
+        headers["Authorization"] = "Bearer $token"
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+        headers["Accept"] = "application/json"
 
-//        val options = PusherOptions()
-//        options.setCluster("eu")
-//        val pusher = Pusher("0d7a677e7fd7526b0c97", options)
-//        options.isEncrypted
-//
-//        pusher.connect(object :
-//            com.pusher.client.connection.ConnectionEventListener {
-//            override fun onConnectionStateChange(p0: ConnectionStateChange?) {
-//                Log.d("msg One","" + p0!!.currentState)
-//            }
-//
-//            override fun onError(p0: String?, p1: String?, p2: java.lang.Exception?) {
-//                Log.d("msg Two", p0)
-//            }
-//
-//        }, ConnectionState.ALL)
+        val authorizer = HttpAuthorizer(URLs.URL_AUTH)
+        options.setAuthorizer(authorizer).isEncrypted
+        authorizer.setHeaders(headers)
+
+        val pusher = Pusher("0d7a677e7fd7526b0c97", options)
+
+        pusher.connect(object: ConnectionEventListener {
+            override fun onConnectionStateChange(change:ConnectionStateChange) {
+                println(("State changed from " + change.previousState +
+                        " to " + change.currentState))
+            }
+
+            override fun onError(message:String, code:String, e:Exception) {
+                println(("There was a problem connecting! " +
+                        "\ncode: " + code +
+                        "\nmessage: " + message +
+                        "\nException: " + e)
+                )
+            }
+        }, ConnectionState.ALL)
 
 
-//        val channel = pusher.subscribePrivate("App.User.$DriverId")
-//        val channel = pusher.getPrivateChannel("private-App.User.$DriverId")
+        val channel = pusher.subscribePrivate("private-App.User.51", object:
+            PrivateChannelEventListener {
+            override fun onEvent(channel: String?, eventName: String?, data: String?) {
+                Log.d("Channel", channel)
+                Log.d("Event Name", eventName)
+                Log.d("Data", data)
+            }
 
-//        var channel = pusher.subscribe("private-App.User.$DriverId", object: ChannelEventListener {
-//            override fun onEvent(p0: String?, p1: String?, p2: String?) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onSubscriptionSucceeded(channelName: String) {
-//                println("Subscribed!")
-//            }
-//        })
+            override fun onAuthenticationFailure(p0: String?, p1: java.lang.Exception?) {
+                Log.d("error", p1.toString())
+            }
 
-//        val event = "Illuminate\\Notifications\\Events\\BroadcastNotificationCreated"
-//        channel.bind(event.toString()) { channel, eventName, data ->
-//            val jsonObject = JSONObject(data)
-//            println(data)
-//
-//            Log.d("connect to channcel", "connecting")
-//            Log.d("msg Three ", data.toString())
-//            Log.d("msg four", eventName.toString())
-//            Log.d("msg five", channel.toString())
-//
-//            runOnUiThread {
-//                Log.d("connect to channcel", "try")
-//            }
-//        }
+            override fun onSubscriptionSucceeded(p0: String?) {
+                Log.d("res", p0)
+            }
+        })
+
+
+        channel.bind("Illuminate\\Notifications\\Events\\BroadcastNotificationCreated", object : PrivateChannelEventListener {
+            override fun onEvent(channel: String?, eventName: String?, data: String?) {
+                Log.d("Channel", channel)
+                Log.d("Event Name", eventName)
+                Log.d("Data", data)
+
+                val jsonObject = JSONObject(data)
+
+                val start_latitude = jsonObject.getString("start_latitude")
+                val start_longitude = jsonObject.getString("start_longitude")
+
+                val stop_latitude = jsonObject.getString("stop_latitude")
+                val stop_longitude = jsonObject.getString("stop_longitude")
+
+                TRIPID = jsonObject.getString("trip_id")
+
+            runOnUiThread {
+
+                val pickup_location = LatLng(start_latitude!!.toDouble(), start_longitude!!.toDouble())
+                val dropoff_location = LatLng(stop_latitude!!.toDouble(), stop_longitude!!.toDouble())
+
+                map.addMarker(MarkerOptions().position(pickup_location).title("Pick Location"))
+                map.addMarker(MarkerOptions().position(dropoff_location).title("Drop off Location"))
+
+                expandCloseSheet(pickup_location,dropoff_location)
+
+
+            }
+        }
+
+            override fun onAuthenticationFailure(p0: String?, p1: java.lang.Exception?) {
+                Log.d("error", p1.toString())
+            }
+
+            override fun onSubscriptionSucceeded(p0: String?) {
+                Log.d("res", p0)
+            }
+
+        })
+
+
     }
+
+
 
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -151,8 +204,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val stringRequest: StringRequest = object : StringRequest( Method.POST, URLs.URL_STORE_TRUCK_LOCATION,
             Response.Listener { response ->
                 try {
-
-                    val jsonObject = JSONObject(response)
+                    Log.d("Response ", response.toString())
                     onSuccess()
 
                 } catch (e: JSONException) {
@@ -296,6 +348,93 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     }
 
+    private fun expandCloseSheet(pickup_location: LatLng, dropoffLocation: LatLng) {
+        if (sheetBehaviorOne.state != BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehaviorOne.state = BottomSheetBehavior.STATE_EXPANDED
+
+            val user_pickup_location = getAddress(pickup_location)
+            val user_drop_Location = getAddress(dropoffLocation)
+
+            user_location_pickup.text = user_pickup_location
+            user_location_drop.text = user_drop_Location
+
+            btn_accept.setOnClickListener {
+                AcceptTrip(TRIPID,TRUCK_ID,token)
+            }
+
+        } else {
+            sheetBehaviorOne.state = BottomSheetBehavior.STATE_COLLAPSED
+
+            val user_pickup_location = getAddress(pickup_location)
+            val user_drop_Location = getAddress(dropoffLocation)
+
+            user_location_pickup.text = user_pickup_location
+            user_location_drop.text = user_drop_Location
+
+        }
+
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup_location, 12f))
+    }
+
+    private fun AcceptTrip(tripid: String, truckId: Int, token: String) {
+        val stringRequest: StringRequest = object : StringRequest( Method.POST, URLs.URL_START_TRIP + "",
+            Response.Listener { response ->
+                try {
+
+                    Log.d("Response Start Trip ", response.toString())
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            },
+            Response.ErrorListener { error ->
+                onFailed(error)
+                Log.d("debug", error.toString())
+            }) {
+            override fun getParams(): Map<String, String> {
+                val params: MutableMap<String, String> = HashMap()
+                return params
+            }
+
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $token"
+                headers["Content-Type"] = "application/x-www-form-urlencoded"
+                return headers
+            }
+
+        }
+        val requestQueue = Volley.newRequestQueue(this)
+        stringRequest.retryPolicy =
+            DefaultRetryPolicy(20 * 1000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
+        requestQueue.add(stringRequest)
+
+    }
+
+    private fun getAddress(location: LatLng): String {
+        val geocoder = Geocoder(this)
+        val addresses: List<Address>?
+        addressText = ""
+
+        try {
+
+            addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            if (null != addresses && !addresses.isEmpty()) {
+
+                addressText = addresses[0].getAddressLine(0)
+
+            }
+        } catch (e: IOException) {
+            Log.d("MapsActivity", e.localizedMessage)
+            Snackbar.make(
+                findViewById(android.R.id.content),
+                e.localizedMessage, Snackbar.LENGTH_LONG).show()
+        }
+
+        return addressText
+    }
+
     override fun onResume() {
         super.onResume()
         PushNotifications.setOnMessageReceivedListenerForVisibleActivity(this, object :
@@ -317,5 +456,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
 }
+
+
 
 

@@ -77,6 +77,7 @@ class SignupActivity : AppCompatActivity() {
 
                     val JsonRes = response.getJSONObject("data")
                     val Token = JsonRes.getString("token")
+                    Log.d("res", response.toString())
                     getUser(Token)
 
 
